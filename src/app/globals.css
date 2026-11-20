@@ -8,12 +8,23 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+
+  /* PowerMatch brand */
+  --color-brand: #f5e04a;
+  --color-brand-dark: #e8cf1f;
+  --color-ink: #1d2433;
+  --color-muted: #667085;
+  --color-line: #eaecf0;
+  --color-canvas: #f9fafb;
+  --color-success: #12b76a;
+  --color-success-soft: #ecfdf3;
+  --color-danger: #f04438;
+  --color-danger-soft: #fef3f2;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
