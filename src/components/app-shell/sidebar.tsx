@@ -13,7 +13,6 @@ import {
   FileSignature,
   Globe,
   Inbox,
-  LogIn,
   Network,
   PhoneCall,
   PhoneForwarded,
@@ -48,10 +47,9 @@ const mainNav: NavItem[] = [
 
 const adminNav: NavItem[] = [
   { label: "Numbers & hours", icon: PhoneForwarded, href: "/settings/numbers-hours" },
-  { label: "Queues & wrap-up", icon: PhoneCall },
-  { label: "Agents", icon: User },
-  { label: "Compliance & data", icon: Database },
-  { label: "Sign-in & access", icon: LogIn },
+  { label: "Queues & wrap-up", icon: PhoneCall, href: "/settings/queues-wrap-up" },
+  { label: "User management", icon: User, href: "/settings/user-management" },
+  { label: "Compliance & data", icon: Database, href: "/settings/compliance-data" },
 ];
 
 const itemBase =
