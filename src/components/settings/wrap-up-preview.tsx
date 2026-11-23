@@ -166,7 +166,7 @@ export function WrapUpPreview({ outcomes, onReorder }: WrapUpPreviewProps) {
             >
               {/* Keep the slot's size while its button is being dragged. */}
               <span className={`flex min-w-0 flex-1 items-center gap-2 ${isDragged ? "invisible" : ""}`}>
-                <OutcomeMarker marker={outcome.marker} />
+                <OutcomeMarker icon={outcome.icon} />
                 <span className="truncate">{outcome.label}</span>
               </span>
               {!drag && (
@@ -200,7 +200,7 @@ export function WrapUpPreview({ outcomes, onReorder }: WrapUpPreviewProps) {
           style={{ left: drag.x - drag.offsetX, top: drag.y - drag.offsetY, width: drag.width, height: drag.height }}
           className="pointer-events-none fixed z-50 flex cursor-grabbing items-center gap-2 rounded-lg border border-line bg-white px-3 text-[14.5px] whitespace-nowrap shadow-[0_12px_16px_-4px_rgba(16,24,40,0.12),0_4px_6px_-2px_rgba(16,24,40,0.05)]"
         >
-          <OutcomeMarker marker={dragged.marker} />
+          <OutcomeMarker icon={dragged.icon} />
           <span className="min-w-0 flex-1 truncate">{dragged.label}</span>
           <GripVertical className="size-4 shrink-0 text-[#475467]" strokeWidth={2} />
         </div>

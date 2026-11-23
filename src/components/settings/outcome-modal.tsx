@@ -1,19 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ListChecks } from "lucide-react";
-import { outcomeColorClass } from "@/components/settings/outcome-marker";
+import { ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { TextInput } from "@/components/ui/form";
+import { IconSelect } from "@/components/ui/icon-picker";
 import { Modal } from "@/components/ui/modal";
 import { Switch } from "@/components/ui/switch";
-import { outcomeColors, type OutcomeColor, type OutcomeOptions, type WrapUpOutcome } from "@/lib/queues";
+import { defaultNewOutcomeIcon, type OutcomeIcon, type OutcomeOptions, type WrapUpOutcome } from "@/lib/queues";
 
 export type OutcomeDraft = OutcomeOptions & {
   label: string;
-  /** null keeps an existing icon outcome as it is (no colour picked). */
-  color: OutcomeColor | null;
+  icon: OutcomeIcon;
 };
 
 const options: { key: keyof OutcomeOptions; title: string; description: string }[] = [
@@ -34,10 +33,10 @@ const options: { key: keyof OutcomeOptions; title: string; description: string }
   },
 ];
 
-/** New outcomes start like the design: green, and asking for a date & time. */
+/** New outcomes start with a tick icon, asking for a date & time (as in the design). */
 const newDraft: OutcomeDraft = {
   label: "",
-  color: "green",
+  icon: defaultNewOutcomeIcon,
   asksDateTime: true,
   requiresNote: false,
   autoArchive: false,
@@ -46,7 +45,7 @@ const newDraft: OutcomeDraft = {
 function draftFrom(outcome: WrapUpOutcome): OutcomeDraft {
   return {
     label: outcome.label,
-    color: outcome.marker.kind === "dot" ? outcome.marker.color : null,
+    icon: outcome.icon,
     asksDateTime: outcome.asksDateTime,
     requiresNote: outcome.requiresNote,
     autoArchive: outcome.autoArchive,
@@ -89,7 +88,9 @@ export function OutcomeModal({ outcome, onClose, onSave, onDelete }: OutcomeModa
         onClose={onClose}
         className="max-w-[520px]"
         title={outcome ? "Edit outcome" : "Add new outcome"}
-        subtitle={outcome ? "Make changes on your existing outcome." : "What agents pick when finishing a conversation."}
+        subtitle={
+          outcome ? "Make changes on your existing outcome." : "What agents pick when finishing a conversation."
+        }
         footer={
           <div className="flex items-center justify-between">
             {outcome && onDelete ? (
@@ -114,31 +115,16 @@ export function OutcomeModal({ outcome, onClose, onSave, onDelete }: OutcomeModa
         >
           <label className="block">
             <span className="mb-2 block text-[15px] font-medium">Name</span>
-            <TextInput placeholder="e.g., Callback" value={draft.label} onChange={(e) => set("label", e.target.value)} />
+            <TextInput
+              placeholder="e.g., Callback"
+              value={draft.label}
+              onChange={(e) => set("label", e.target.value)}
+            />
           </label>
 
           <div>
-            <span id="outcome-color" className="mb-2.5 block text-[15px] font-medium">
-              Select button color
-            </span>
-            <div role="radiogroup" aria-labelledby="outcome-color" className="flex gap-3">
-              {outcomeColors.map((color) => {
-                const selected = draft.color === color;
-                return (
-                  <button
-                    key={color}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    aria-label={color}
-                    onClick={() => set("color", color)}
-                    className={`grid size-10 place-items-center rounded-full text-white transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#98a2b3] ${outcomeColorClass[color]}`}
-                  >
-                    {selected && <Check className="size-5" strokeWidth={2.4} />}
-                  </button>
-                );
-              })}
-            </div>
+            <span className="mb-2 block text-[15px] font-medium">Icon</span>
+            <IconSelect value={draft.icon} onChange={(icon) => set("icon", icon)} />
           </div>
 
           <div className="space-y-7 px-3 pt-1">

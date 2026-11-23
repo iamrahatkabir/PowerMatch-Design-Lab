@@ -1,3 +1,16 @@
+import {
+  Ban,
+  CalendarCheck,
+  Check,
+  Clock,
+  Mail,
+  NotebookPen,
+  PhoneCall,
+  ThumbsDown,
+  UserCheck,
+  type LucideIcon,
+} from "lucide-react";
+
 export type Queue = {
   id: string;
   name: string;
@@ -42,13 +55,14 @@ export const queues: Queue[] = [
   members: team,
 }));
 
-/** Colours an admin can pick for an outcome button, in picker order. */
-export const outcomeColors = ["green", "blue", "purple", "magenta", "orange"] as const;
-export type OutcomeColor = (typeof outcomeColors)[number] | "gray";
+/**
+ * An outcome's icon from the Lucide library (lucide.dev/icons). `name` is the
+ * icon's Lucide name (e.g. "PhoneCall"), which is what would be saved; `Icon`
+ * is the component that draws it.
+ */
+export type OutcomeIcon = { name: string; Icon: LucideIcon };
 
-export type OutcomeMarker =
-  | { kind: "icon"; icon: "check" | "mail" | "clock" | "callback" | "ban" | "note" }
-  | { kind: "dot"; color: OutcomeColor };
+const icon = (name: string, Icon: LucideIcon): OutcomeIcon => ({ name, Icon });
 
 export type OutcomeOptions = {
   /** Agent picks when to follow up (in 1 hour, today 16:00, or a specific time). */
@@ -62,7 +76,9 @@ export type OutcomeOptions = {
 export type WrapUpOutcome = OutcomeOptions & {
   id: string;
   label: string;
-  marker: OutcomeMarker;
+  icon: OutcomeIcon;
+  /** Comes with PowerMatch; can be edited but not deleted. */
+  isDefault: boolean;
   /** When the outcome was added, e.g. "22 May, 2026". */
   createdAt: string;
 };
@@ -76,24 +92,28 @@ export function formatCreatedAt(date: Date) {
 const off: OutcomeOptions = { asksDateTime: false, requiresNote: false, autoArchive: false };
 /** Follow-up style outcomes ask the agent for a date & time. */
 const asksTime: OutcomeOptions = { ...off, asksDateTime: true };
+const created = "22 May, 2026";
+
+/** Sample data matching the design. The ones marked isDefault are built in. */
+export const defaultNewOutcomeIcon = icon("Check", Check);
 
 export const phoneCallOutcomes: WrapUpOutcome[] = [
-  { id: "resolved", label: "Resolved", marker: { kind: "icon", icon: "check" }, createdAt: "22 May, 2026", ...off },
-  { id: "info-sent", label: "Info sent", marker: { kind: "icon", icon: "mail" }, createdAt: "22 May, 2026", ...off },
-  { id: "follow-up", label: "Follow-up", marker: { kind: "icon", icon: "clock" }, createdAt: "22 May, 2026", ...asksTime },
-  { id: "callback-later", label: "Callback later", marker: { kind: "icon", icon: "callback" }, createdAt: "22 May, 2026", ...asksTime },
-  { id: "wrong-number", label: "Wrong number", marker: { kind: "icon", icon: "ban" }, createdAt: "22 May, 2026", ...off },
-  { id: "onboarded", label: "Onboarded", marker: { kind: "dot", color: "green" }, createdAt: "22 May, 2026", ...off },
-  { id: "interview-booked", label: "Interview booked", marker: { kind: "dot", color: "blue" }, createdAt: "22 May, 2026", ...off },
-  { id: "not-interested", label: "Not interested", marker: { kind: "dot", color: "gray" }, createdAt: "22 May, 2026", ...off },
+  { id: "resolved", label: "Resolved", icon: icon("Check", Check), isDefault: true, createdAt: created, ...off },
+  { id: "info-sent", label: "Info sent", icon: icon("Mail", Mail), isDefault: true, createdAt: created, ...off },
+  { id: "follow-up", label: "Follow-up", icon: icon("Clock", Clock), isDefault: true, createdAt: created, ...asksTime },
+  { id: "callback-later", label: "Callback later", icon: icon("PhoneCall", PhoneCall), isDefault: true, createdAt: created, ...asksTime },
+  { id: "wrong-number", label: "Wrong number", icon: icon("Ban", Ban), isDefault: true, createdAt: created, ...off },
+  { id: "onboarded", label: "Onboarded", icon: icon("UserCheck", UserCheck), isDefault: false, createdAt: created, ...off },
+  { id: "interview-booked", label: "Interview booked", icon: icon("CalendarCheck", CalendarCheck), isDefault: false, createdAt: created, ...off },
+  { id: "not-interested", label: "Not interested", icon: icon("ThumbsDown", ThumbsDown), isDefault: false, createdAt: created, ...off },
 ];
 
 export const chatEmailOutcomes: WrapUpOutcome[] = [
-  { id: "c-resolved", label: "Resolved", marker: { kind: "icon", icon: "check" }, createdAt: "22 May, 2026", ...off },
-  { id: "c-info-sent", label: "Info sent", marker: { kind: "icon", icon: "mail" }, createdAt: "22 May, 2026", ...off },
-  { id: "c-kept-note", label: "Kept note", marker: { kind: "icon", icon: "note" }, createdAt: "22 May, 2026", ...off },
-  { id: "c-follow-up", label: "Follow-up", marker: { kind: "icon", icon: "clock" }, createdAt: "22 May, 2026", ...asksTime },
-  { id: "c-interview-booked", label: "Interview booked", marker: { kind: "dot", color: "blue" }, createdAt: "22 May, 2026", ...off },
+  { id: "c-resolved", label: "Resolved", icon: icon("Check", Check), isDefault: true, createdAt: created, ...off },
+  { id: "c-info-sent", label: "Info sent", icon: icon("Mail", Mail), isDefault: true, createdAt: created, ...off },
+  { id: "c-kept-note", label: "Kept note", icon: icon("NotebookPen", NotebookPen), isDefault: true, createdAt: created, ...off },
+  { id: "c-follow-up", label: "Follow-up", icon: icon("Clock", Clock), isDefault: true, createdAt: created, ...asksTime },
+  { id: "c-interview-booked", label: "Interview booked", icon: icon("CalendarCheck", CalendarCheck), isDefault: false, createdAt: created, ...off },
 ];
 
 /** "Sales" → "Sales queue", but leaves "Sales queue" as is. */

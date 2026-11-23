@@ -4,22 +4,31 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 
 /**
  * Open/close + positioning for dropdown menus. The menu is `position: fixed`
- * under its trigger so it isn't clipped inside scrolling popups. It closes on
- * an outside click, on resize, and when anything other than the menu scrolls.
+ * under its trigger so it isn't clipped inside scrolling popups. It opens
+ * upward when there isn't room below for `menuHeight`. It closes on an outside
+ * click, on resize, and when anything other than the menu scrolls.
  */
-export function useFloatingMenu() {
+export function useFloatingMenu<Menu extends HTMLElement = HTMLUListElement>(menuHeight = 260) {
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState<CSSProperties>();
   const buttonRef = useRef<HTMLButtonElement>(null);
   /** Optional wider box to line the menu up with (defaults to the button). */
   const anchorRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<Menu>(null);
 
   const openMenu = useCallback(() => {
     const rect = (anchorRef.current ?? buttonRef.current)?.getBoundingClientRect();
-    if (rect) setStyle({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    if (rect) {
+      const roomBelow = window.innerHeight - rect.bottom;
+      const above = roomBelow < menuHeight + 12 && rect.top > roomBelow;
+      setStyle(
+        above
+          ? { bottom: window.innerHeight - rect.top + 4, left: rect.left, width: rect.width }
+          : { top: rect.bottom + 4, left: rect.left, width: rect.width },
+      );
+    }
     setOpen(true);
-  }, []);
+  }, [menuHeight]);
 
   const close = useCallback(() => setOpen(false), []);
 

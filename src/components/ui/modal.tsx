@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 type ModalProps = {
@@ -20,18 +20,24 @@ type ModalProps = {
  */
 export function Modal({ open, onClose, title, subtitle, children, footer, className = "" }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Unique per popup, so two open at once (e.g. a picker over a form) don't clash.
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) {
+      dialog.showModal();
+      // showModal() focuses the first button (usually Close); prefer a field marked data-autofocus.
+      dialog.querySelector<HTMLElement>("[data-autofocus]")?.focus();
+    }
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
   return (
     <dialog
       ref={ref}
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
       onClose={onClose}
       // Clicking the dim area outside the panel lands on the <dialog> itself.
       onClick={(e) => e.target === e.currentTarget && onClose()}
@@ -41,7 +47,7 @@ export function Modal({ open, onClose, title, subtitle, children, footer, classN
         className={`flex min-h-[72px] shrink-0 justify-between gap-4 border-b border-line px-6 py-5 ${subtitle ? "items-start" : "items-center"}`}
       >
         <div>
-          <h2 id="modal-title" className="flex items-center gap-2 text-[17px] font-medium">
+          <h2 id={titleId} className="flex items-center gap-2 text-[17px] font-medium">
             {title}
           </h2>
           {subtitle && <p className="mt-1 text-[13px] text-[#475467]">{subtitle}</p>}

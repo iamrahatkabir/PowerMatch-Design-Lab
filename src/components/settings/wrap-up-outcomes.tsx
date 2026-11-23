@@ -6,9 +6,16 @@ import { OutcomeMarker } from "@/components/settings/outcome-marker";
 import { OutcomeModal, type OutcomeDraft } from "@/components/settings/outcome-modal";
 import { WrapUpPreview } from "@/components/settings/wrap-up-preview";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/data-display";
 import { SegmentedControl } from "@/components/ui/tab-bar";
 import { Toast } from "@/components/ui/toast";
-import { chatEmailOutcomes, formatCreatedAt, phoneCallOutcomes, type WrapUpOutcome } from "@/lib/queues";
+import {
+  chatEmailOutcomes,
+  defaultNewOutcomeIcon,
+  formatCreatedAt,
+  phoneCallOutcomes,
+  type WrapUpOutcome,
+} from "@/lib/queues";
 
 const channels = ["Phone call", "Chats & Emails"] as const;
 type Channel = (typeof channels)[number];
@@ -16,9 +23,9 @@ type Channel = (typeof channels)[number];
 /** null = closed, "new" = adding, otherwise the id being edited. */
 type Editing = null | "new" | string;
 
-/** Apply the popup's fields to an outcome. Picking a colour turns it into a coloured dot. */
-function applyDraft(outcome: WrapUpOutcome, { color, ...draft }: OutcomeDraft): WrapUpOutcome {
-  return { ...outcome, ...draft, marker: color ? { kind: "dot", color } : outcome.marker };
+/** Apply the popup's fields to an outcome. */
+function applyDraft(outcome: WrapUpOutcome, draft: OutcomeDraft): WrapUpOutcome {
+  return { ...outcome, ...draft };
 }
 
 export function WrapUpOutcomes() {
@@ -69,7 +76,8 @@ export function WrapUpOutcomes() {
       const blank: WrapUpOutcome = {
         id: crypto.randomUUID(),
         label: "",
-        marker: { kind: "dot", color: "green" },
+        icon: defaultNewOutcomeIcon,
+        isDefault: false,
         createdAt: formatCreatedAt(new Date()),
         asksDateTime: false,
         requiresNote: false,
@@ -104,7 +112,8 @@ export function WrapUpOutcomes() {
           outcome={current}
           onClose={() => setEditing(null)}
           onSave={save}
-          onDelete={current ? () => remove(current) : undefined}
+          // Built-in default outcomes can't be deleted.
+          onDelete={current && !current.isDefault ? () => remove(current) : undefined}
         />
       )}
       <Toast message={toast} onDismiss={dismissToast} />
@@ -130,8 +139,9 @@ export function WrapUpOutcomes() {
                 >
                   <td className="px-5">
                     <span className="flex items-center gap-2.5 whitespace-nowrap">
-                      <OutcomeMarker marker={outcome.marker} />
+                      <OutcomeMarker icon={outcome.icon} />
                       {outcome.label}
+                      {outcome.isDefault && <Chip>Default</Chip>}
                     </span>
                   </td>
                   <td className="px-5 whitespace-nowrap">{outcome.createdAt}</td>
