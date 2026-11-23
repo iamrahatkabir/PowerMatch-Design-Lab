@@ -77,6 +77,7 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 **Feature components (`src/components/settings/`)**
 - Numbers & hours: `phone-numbers-table.tsx`, `add-numbers-modal.tsx` (select → setting up → added/failed + retry; failure is simulated ~30%), `edit-number-modal.tsx`, `business-hours.tsx`, `voicemail-settings.tsx`.
 - Queues: `queues-table.tsx`, `queue-modal.tsx` (create/edit/delete).
+- User management: page in `src/app/settings/user-management/page.tsx`, invite popup `invite-members-modal.tsx`.
 - Wrap-up: `wrap-up-outcomes.tsx` (table + state), `wrap-up-preview.tsx` (drag-to-reorder card), `outcome-modal.tsx` (add/edit/delete), `outcome-marker.tsx` (draws an outcome's icon).
 
 ## Behaviour decisions worth knowing
@@ -109,13 +110,21 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
   - Drag drops into the grid cell nearest the pointer; the blue line marks the exact landing slot. Arrow keys also move a focused button.
   - Outcomes with `isDefault: true` (Resolved, Info sent, Follow-up, Callback later, Wrong number, Kept note) **can't be deleted**. Their name, icon and options can still be edited.
   - Each outcome stores a Lucide icon `{ name, Icon }` and three switches: asks for date & time, requires a note, auto archive.
+- **User management, Add members** (`invite-members-modal.tsx`):
+  - One or more emails, separated by commas (new lines, spaces and semicolons also work).
+  - Bad addresses and existing members show red errors. The address still being typed isn't flagged until it's followed by a separator or the box loses focus.
+  - Send invitation stays disabled until every email is valid. Cmd/Ctrl+Enter sends.
+  - Invitees are added at the top as "Invitation sent", named after the part of the email before the @, with the toast "Invitations sent to N people."
+- **User management, bin icon:** always asks first.
+  - Pending invites (no "Member since") get "Cancel invitation?" / "Yes! Cancel" and the toast "Invitation to {email} has been cancelled."
+  - Members get "Remove agent?" / "Do you really want to remove **Name**?" / "Yes! Remove" and the toast "{Name} has been removed."
 - **Avatars:** everyone with a photo uses one placeholder face cropped from the mock (`public/avatars/placeholder.png`); real photos go in `public/avatars/` via `users.ts`.
 - **Logo:** `public/powermatch-logo.svg` (the real one). The favicon `src/app/icon.svg` is only the yellow mark.
 
 ## Not built yet / placeholders
 
 - Nothing persists (no backend); every Save only updates local state.
-- Not wired up: Add members. Voicemail, Compliance and Business hours saves only update local state, then show a toast.
+- Voicemail, Compliance and Business hours saves only update local state, then show a toast. Invitations aren't actually emailed.
 - Tabs seen in designs but not built: Numbers & hours → Routing settings, Outbound & smart rotation; Queues → Answer-time targets.
 - Sidebar items outside Admin settings are inert.
 

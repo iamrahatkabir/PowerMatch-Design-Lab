@@ -4,6 +4,14 @@ Newest first. Each entry says what changed and where, so a new session can catch
 
 ## 2026-11-23
 
+### User management
+- **Remove / cancel confirmations:** the bin icon now opens a confirmation. Pending invites show "Cancel invitation?" with "Yes! Cancel"; members show "Remove agent?" with their name and "Yes! Remove". Each shows a toast after.
+- **Add members (invite):** the button opens the design's popup (`settings/invite-members-modal.tsx`).
+  - Type emails separated by commas; the hint says how many people will be invited.
+  - Invalid addresses and existing members show red errors, but not while an address is still being typed.
+  - Send invitation is enabled only when everything is valid.
+  - Invitees appear at the top of the table as "Invitation sent", with a toast.
+
 ### Numbers & hours
 - **Voicemail voice recording:** "Record a greeting now" uses the new `ui/voice-recorder.tsx`, which follows the three designs:
   1. A **Record** button.

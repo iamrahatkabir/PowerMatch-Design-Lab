@@ -1,14 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Plus, Trash2, UserRoundX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Avatar, Chip, TableCard, th, tr } from "@/components/ui/data-display";
-import { users as initialUsers } from "@/lib/users";
+import { InviteMembersModal } from "@/components/settings/invite-members-modal";
+import { Toast } from "@/components/ui/toast";
+import { users as initialUsers, type TeamUser } from "@/lib/users";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState(initialUsers);
   const [query, setQuery] = useState("");
+  const [inviting, setInviting] = useState(false);
+  /** The person whose bin icon was clicked, waiting for confirmation. */
+  const [removing, setRemoving] = useState<TeamUser | null>(null);
+  // Someone who hasn't accepted yet (no "member since") has a pending invitation to cancel instead.
+  const isPending = (user: TeamUser) => user.memberSince === null;
+
+  const confirmRemove = () => {
+    if (!removing) return;
+    setUsers((all) => all.filter((u) => u.id !== removing.id));
+    setToast(
+      isPending(removing)
+        ? `Invitation to ${removing.email} has been cancelled.`
+        : `${removing.name} has been removed.`,
+    );
+    setRemoving(null);
+  };
+  const [toast, setToast] = useState<string | null>(null);
+  const dismissToast = useCallback(() => setToast(null), []);
+
+  /** Invited people show at the top as "Invitation sent" until they accept; their name is the email's first part for now. */
+  const invite = (emails: string[]) => {
+    const invited: TeamUser[] = emails.map((email) => ({
+      id: crypto.randomUUID(),
+      name: email.split("@")[0],
+      email,
+      lastLogin: null,
+      memberSince: null,
+    }));
+    setUsers((all) => [...invited, ...all]);
+    setToast(emails.length === 1 ? `Invitation sent to ${emails[0]}.` : `Invitations sent to ${emails.length} people.`);
+  };
 
   const q = query.trim().toLowerCase();
   const visible = q
@@ -28,11 +62,36 @@ export default function UserManagementPage() {
             className="h-9 w-full rounded-lg border border-line bg-white px-3 text-[14.5px] outline-none placeholder:text-[#98a2b3] focus:border-[#98a2b3]"
           />
         </label>
-        <Button>
+        <Button onClick={() => setInviting(true)}>
           <Plus className="size-4" strokeWidth={1.8} />
           Add members
         </Button>
       </div>
+
+      {inviting && (
+        <InviteMembersModal
+          existingEmails={users.map((u) => u.email)}
+          onClose={() => setInviting(false)}
+          onInvite={invite}
+        />
+      )}
+      <Toast message={toast} onDismiss={dismissToast} />
+      <ConfirmDialog
+        open={removing !== null}
+        onCancel={() => setRemoving(null)}
+        onConfirm={confirmRemove}
+        icon={<UserRoundX className="size-6" strokeWidth={1.6} />}
+        title={removing && isPending(removing) ? "Cancel invitation?" : "Remove agent?"}
+        confirmLabel={removing && isPending(removing) ? "Yes! Cancel" : "Yes! Remove"}
+      >
+        {removing && isPending(removing) ? (
+          "Do you really want to cancel invitation?"
+        ) : (
+          <>
+            Do you really want to remove <strong className="font-semibold text-ink">{removing?.name}</strong>?
+          </>
+        )}
+      </ConfirmDialog>
 
       <TableCard>
         <table className="w-full min-w-[760px] text-left text-[15px]">
@@ -62,8 +121,8 @@ export default function UserManagementPage() {
                 <td className="px-5 text-right">
                   <button
                     type="button"
-                    aria-label={`Remove ${user.name}`}
-                    onClick={() => setUsers((all) => all.filter((u) => u.id !== user.id))}
+                    aria-label={isPending(user) ? `Cancel invitation for ${user.name}` : `Remove ${user.name}`}
+                    onClick={() => setRemoving(user)}
                     className="rounded p-1 text-ink hover:bg-canvas"
                   >
                     <Trash2 className="size-[18px]" strokeWidth={1.6} />
