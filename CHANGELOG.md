@@ -4,6 +4,24 @@ Newest first. Each entry says what changed and where, so a new session can catch
 
 ## 2026-11-23
 
+### Numbers & hours
+- **Incomplete holidays block Save:** after **Add holiday**, Save changes stays disabled until the new holiday has a name, a start date and an end date. Clearing a name disables it again.
+- **Holiday date pickers:** holiday start and end dates use `DatePicker` (`ui/date-picker.tsx`), matching the design.
+  - It's a month calendar with arrows, Monday first. The selected day is a yellow circle and today is grey.
+  - It opens upward when there's no room below.
+  - It works with the keyboard: arrows, Page Up/Down and Enter.
+  - An end date before the start date shows an error and blocks Save.
+  - Holiday dates are now stored as ISO dates, with real 2026 dates. "Ester" was renamed "Easter". New holidays start with empty "Start date" and "End date" fields.
+- **Business hours validation:** an end time at or before its start time turns the end field red and shows "End time must be later than start time." under that row. Save changes is disabled until it's fixed; closed days are skipped. `TimeSelect` gained `invalid` and `errorId` props. Monday's sample 12:00–12:00 range is now 12:00–13:00.
+- **Business hours time dropdowns.** Start and end times now use `TimeSelect` (`ui/time-select.tsx`), matching the design: a scrolling list in 15-minute steps, with the chosen time ticked and highlighted. They work with the arrow keys and Enter, and are locked on closed days. The **+** button adds a range that starts where the last one ends and lasts an hour.
+
+### Everywhere
+- **"Save changes" only appears after a change.** This covers Business hours, Voicemail, Compliance & data, and the Edit number, queue and outcome popups. The Wrap-up reorder already worked this way.
+  - New helper: `ui/use-unsaved-changes.ts`.
+  - Undoing a change hides the button again.
+  - Page saves now show the toast "Changes have been saved."
+  - A popup with no changes and nothing deletable has no footer at all.
+
 ### Wrap-up outcomes
 - **"Default" badge:** default outcomes show a grey "Default" chip (the shared `Chip`) next to their name in the Buttons table.
 - **Icon dropdown with all Lucide icons.** The outcome popup's Icon field (`IconSelect` in `ui/icon-picker.tsx`) opens a dropdown with a search box and a grid of all ~2,100 Lucide icons. The full set loads on first open, and more icons draw as you scroll. Outcomes store `{ name, Icon }` (`lib/queues.ts`).

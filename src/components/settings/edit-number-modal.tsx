@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/data-display";
 import { Select, TextInput } from "@/components/ui/form";
 import { Modal } from "@/components/ui/modal";
 import { PillTabs } from "@/components/ui/tab-bar";
+import { useUnsavedChanges } from "@/components/ui/use-unsaved-changes";
 import type { PhoneNumber } from "@/lib/phone-numbers";
 import { queues } from "@/lib/queues";
 import { users } from "@/lib/users";
@@ -51,8 +52,11 @@ export function EditNumberModal({ number, onClose, onSave }: EditNumberModalProp
     ...(agent && !agentOptions.includes(agent) ? [{ value: agent, label: agent }] : []),
   ];
   const target = kind === "Queues" ? queue : agent;
+  // Save changes only shows after an edit; switching tabs back and forth alone isn't one.
+  const { dirty } = useUnsavedChanges({ label: label.trim(), target });
 
   const save = () => {
+    if (!dirty) return;
     onSave({ label: label.trim() || number.label, routedTo: target || "--" });
     onClose();
   };
@@ -70,11 +74,13 @@ export function EditNumberModal({ number, onClose, onSave }: EditNumberModalProp
       }
       subtitle={`${number.routedTo || "--"} • ${number.type}`}
       footer={
-        <div className="flex justify-end">
-          <Button variant="primary" className="h-10 px-5" onClick={save}>
-            Save changes
-          </Button>
-        </div>
+        dirty ? (
+          <div className="flex justify-end">
+            <Button variant="primary" className="h-10 px-5" onClick={save}>
+              Save changes
+            </Button>
+          </div>
+        ) : undefined
       }
     >
       <form

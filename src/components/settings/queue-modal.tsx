@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { TextInput } from "@/components/ui/form";
 import { Modal } from "@/components/ui/modal";
 import { MultiSelect, type MultiOption } from "@/components/ui/multi-select";
+import { useUnsavedChanges } from "@/components/ui/use-unsaved-changes";
 import { phoneNumbers } from "@/lib/phone-numbers";
 import { allChannels, queueLabel, type Queue } from "@/lib/queues";
 import { users } from "@/lib/users";
@@ -53,7 +54,9 @@ export function QueueModal({ queue, queueNames, onClose, onSave, onDelete }: Que
   const [members, setMembers] = useState(queue?.members ?? []);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canSave = name.trim().length > 0;
+  const { dirty } = useUnsavedChanges({ name: name.trim(), numbers, channels, members });
+  const canSave = dirty && name.trim().length > 0;
+  const canDelete = Boolean(queue && onDelete);
 
   const save = () => {
     if (!canSave) return;
@@ -75,18 +78,23 @@ export function QueueModal({ queue, queueNames, onClose, onSave, onDelete }: Que
         className="max-w-[520px]"
         title={queue ? queueLabel(queue.name) : "Create a new queue"}
         footer={
-          <div className="flex items-center justify-between">
-            {queue && onDelete ? (
-              <Button variant="danger" className="h-10 px-5" onClick={() => setConfirmingDelete(true)}>
-                Delete
-              </Button>
-            ) : (
-              <span />
-            )}
-            <Button variant="primary" className="h-10 px-5" disabled={!canSave} onClick={save}>
-              Save changes
-            </Button>
-          </div>
+          // Delete is always there when editing; Save changes only after an edit.
+          canDelete || dirty ? (
+            <div className="flex items-center justify-between">
+              {canDelete ? (
+                <Button variant="danger" className="h-10 px-5" onClick={() => setConfirmingDelete(true)}>
+                  Delete
+                </Button>
+              ) : (
+                <span />
+              )}
+              {dirty && (
+                <Button variant="primary" className="h-10 px-5" disabled={!canSave} onClick={save}>
+                  Save changes
+                </Button>
+              )}
+            </div>
+          ) : undefined
         }
       >
         <form

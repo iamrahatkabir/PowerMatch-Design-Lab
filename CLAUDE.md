@@ -12,6 +12,7 @@ Read this file and `CHANGELOG.md` first; you shouldn't need to read every source
 - Build from the shared design. When the design is ambiguous or inconsistent, pick the sensible option, build it, and say what you chose.
 - Verify changes in the browser at 1440px wide before reporting done. Run `npx tsc --noEmit` and `npm run lint`; both must be clean.
 - Keep the first Queues & wrap-up tab named **"Queues"**, even though some designs say "Queues & auto-pause".
+- **"Save changes" only appears when something has changed.** This applies on every page and in every popup. Use `useUnsavedChanges` (`ui/use-unsaved-changes.ts`). Changing a field back to its saved value hides the button again. Saving shows a toast and makes the current state the new baseline.
 
 ## Stack
 
@@ -58,8 +59,11 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 - `tab-bar.tsx`: `TabBar` (underlined page tabs), `SegmentedControl`, `PillTabs` (full-width grey track).
 - `data-display.tsx`: `Chip`, `ChipList` (+N), `Avatar` (photo or initials), `AvatarStack`, `StatusBadge`, `TableCard`, table class strings `th`/`tr`.
 - `switch.tsx`: yellow toggle.
+- `use-unsaved-changes.ts`: `useUnsavedChanges(value)` returns `{ dirty, markSaved }` by comparing against the last saved snapshot as JSON. Pass plain data only; compare icons by name.
 - `use-floating-menu.ts`: shared dropdown open/close/position (fixed, flips upward when there isn't room, closes on outside click or scroll).
 - `avatar-select.tsx`: single-choice dropdown with avatars (Agent field).
+- `date-picker.tsx`: `DatePicker`, a date field with a Monday-first month calendar. The chosen day is a yellow circle and today is grey. It supports keyboard navigation and `invalid`/`errorId`. Dates are stored as `"YYYY-MM-DD"` and shown as "Apr 2, 2026" (`formatDate`, `toIso`, `fromIso`). Used for holidays.
+- `time-select.tsx`: `TimeSelect`, a time field with a dropdown in 15-minute steps (00:00–23:45). The chosen time is ticked and centred when it opens. `timeOptions(step)` builds the list. `invalid` + `errorId` show the red error state. Used in Business hours.
 - `multi-select.tsx`: checkbox dropdown with "N selected ×" (numbers, channels, members; disabled rows with a tag).
 - `icon-picker.tsx`: `IconSelect` field + dropdown over all ~2,100 Lucide icons with search. The full set is loaded lazily on first open.
 
@@ -72,6 +76,14 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 
 - **Toasts:** every save, add and delete shows one, e.g. "Changes to X have been saved.", "X has been deleted successfully!".
 - **Deletes:** always go through `ConfirmDialog`.
+- **Popup footers:** an edit popup always shows Delete (if the item is deletable), but Save changes appears only after an edit. A popup with nothing to show has no footer at all. In create popups, Save appears once you start typing and stays disabled until there's a name.
+- **Business hours:**
+  - A range whose end time is at or before its start time gets a red end field and the message "End time must be later than start time." underneath.
+  - Save changes stays disabled while any open day has an error. Closed days aren't checked.
+  - Monday's sample middle range is 12:00–13:00; the design's 12:00–12:00 would be an error.
+  - Holidays use date pickers. A holiday ending before it starts shows "End date can’t be before start date." and blocks Save; a one-day holiday is fine.
+  - Save changes stays disabled while any holiday is missing its name, start date or end date. There's no message for this, only the disabled button.
+  - Sample holidays use real 2026 dates: Easter Apr 2–6, Whitsun May 24–25, Sankt Hans Jun 23, Christmas Dec 24–26.
 - **Phone numbers:**
   - Bought numbers are added as inactive "New number", routed to "--".
   - The Edit popup's Route to has Queues / Agents tabs.
@@ -92,7 +104,7 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 ## Not built yet / placeholders
 
 - Nothing persists (no backend); every Save only updates local state.
-- Not wired up: Add members, Voicemail/Compliance/Business hours Save changes (these show no toast yet).
+- Not wired up: Add members. Voicemail, Compliance and Business hours saves only update local state, then show a toast.
 - Tabs seen in designs but not built: Numbers & hours → Routing settings, Outbound & smart rotation; Queues → Answer-time targets.
 - Sidebar items outside Admin settings are inert.
 

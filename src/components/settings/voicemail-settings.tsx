@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldRow, FormPage, Section, Select, TextArea } from "@/components/ui/form";
+import { Toast } from "@/components/ui/toast";
+import { useUnsavedChanges } from "@/components/ui/use-unsaved-changes";
 
 const greetingTypes = ["Typed text, read aloud", "Uploaded recording", "Default greeting"] as const;
 const lengths = ["1 minute", "2 minutes", "3 minutes", "5 minutes", "10 minutes"] as const;
@@ -13,6 +15,15 @@ export function VoicemailSettings() {
     "This call is recorded for quality and documentation purposes. Press 1 if you do not wish to be recorded.",
   );
   const [maxLength, setMaxLength] = useState("2 minutes");
+
+  // Save changes only shows once something differs from the last save.
+  const { dirty, markSaved } = useUnsavedChanges({ greetingType, greeting, maxLength });
+  const [toast, setToast] = useState<string | null>(null);
+  const dismissToast = useCallback(() => setToast(null), []);
+  const save = () => {
+    markSaved();
+    setToast("Changes have been saved.");
+  };
 
   return (
     <FormPage>
@@ -48,9 +59,12 @@ export function VoicemailSettings() {
         </FieldRow>
       </Section>
 
-      <Button variant="primary" className="h-10 px-5">
-        Save changes
-      </Button>
+      {dirty && (
+        <Button variant="primary" className="h-10 px-5" onClick={save}>
+          Save changes
+        </Button>
+      )}
+      <Toast message={toast} onDismiss={dismissToast} />
     </FormPage>
   );
 }

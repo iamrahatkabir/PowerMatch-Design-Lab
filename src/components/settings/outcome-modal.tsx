@@ -8,6 +8,7 @@ import { TextInput } from "@/components/ui/form";
 import { IconSelect } from "@/components/ui/icon-picker";
 import { Modal } from "@/components/ui/modal";
 import { Switch } from "@/components/ui/switch";
+import { useUnsavedChanges } from "@/components/ui/use-unsaved-changes";
 import { defaultNewOutcomeIcon, type OutcomeIcon, type OutcomeOptions, type WrapUpOutcome } from "@/lib/queues";
 
 export type OutcomeDraft = OutcomeOptions & {
@@ -67,7 +68,10 @@ export function OutcomeModal({ outcome, onClose, onSave, onDelete }: OutcomeModa
 
   const set = <K extends keyof OutcomeDraft>(key: K, value: OutcomeDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
-  const canSave = draft.label.trim().length > 0;
+  // Compare the icon by name; the component itself can't be compared as data.
+  const { dirty } = useUnsavedChanges({ ...draft, label: draft.label.trim(), icon: draft.icon.name });
+  const canSave = dirty && draft.label.trim().length > 0;
+  const canDelete = Boolean(outcome && onDelete);
 
   const save = () => {
     if (!canSave) return;
@@ -92,18 +96,23 @@ export function OutcomeModal({ outcome, onClose, onSave, onDelete }: OutcomeModa
           outcome ? "Make changes on your existing outcome." : "What agents pick when finishing a conversation."
         }
         footer={
-          <div className="flex items-center justify-between">
-            {outcome && onDelete ? (
-              <Button variant="danger" className="h-10 px-5" onClick={() => setConfirmingDelete(true)}>
-                Delete
-              </Button>
-            ) : (
-              <span />
-            )}
-            <Button variant="primary" className="h-10 px-5" disabled={!canSave} onClick={save}>
-              Save changes
-            </Button>
-          </div>
+          // Delete is always there when editing; Save changes only after an edit.
+          canDelete || dirty ? (
+            <div className="flex items-center justify-between">
+              {canDelete ? (
+                <Button variant="danger" className="h-10 px-5" onClick={() => setConfirmingDelete(true)}>
+                  Delete
+                </Button>
+              ) : (
+                <span />
+              )}
+              {dirty && (
+                <Button variant="primary" className="h-10 px-5" disabled={!canSave} onClick={save}>
+                  Save changes
+                </Button>
+              )}
+            </div>
+          ) : undefined
         }
       >
         <form
