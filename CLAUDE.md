@@ -64,7 +64,7 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 - `use-floating-menu.ts`: shared dropdown open/close/position (fixed, flips upward when there isn't room, closes on outside click or scroll).
 - `avatar-select.tsx`: single-choice dropdown with avatars (Agent field).
 - `date-picker.tsx`: `DatePicker`, a date field with a Monday-first month calendar. The chosen day is a yellow circle and today is grey. It supports keyboard navigation and `invalid`/`errorId`. Dates are stored as `"YYYY-MM-DD"` and shown as "Apr 2, 2026" (`formatDate`, `toIso`, `fromIso`). Used for holidays.
-- `audio-upload.tsx`: `AudioUpload`, a drop zone for one `.m4a` file up to 10 MB ("Click to upload or drag and drop"). Wrong type or size shows a red error. Once uploaded, it shows a file card with name, size and length, a play/pause preview with a progress bar, Replace, and remove. The uploaded-state design is my own (none was provided).
+- `audio-upload.tsx`: `AudioUpload`, a drop zone for one audio file of any common format (MP3, WAV, M4A, AAC, OGG, Opus, FLAC, WebM, AIFF, WMA, AMR…) up to 10 MB ("Click to upload or drag and drop"). Formats the browser can't play still upload, with a note that preview isn't available. Wrong type or size shows a red error. Once uploaded, it shows a file card with name, size and length, a play/pause preview with a progress bar, Replace, and remove. The uploaded-state design is my own (none was provided).
 - `voice-recorder.tsx`: `VoiceRecorder`, which records from the microphone in the design's three states:
   - a Record button;
   - while recording, a stop button, a live green waveform and a timer;

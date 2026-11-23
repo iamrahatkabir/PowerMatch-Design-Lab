@@ -5,9 +5,14 @@ import { CloudUpload, FileAudio, Pause, Play, Trash2 } from "lucide-react";
 
 /** 10 MB, as the design states. */
 const MAX_BYTES = 10 * 1024 * 1024;
-const ACCEPT = ".m4a,audio/mp4,audio/x-m4a,audio/m4a";
+/** Audio file extensions we accept, for files whose type the browser can't tell. */
+const AUDIO_EXTENSIONS = ["mp3", "wav", "m4a", "aac", "ogg", "oga", "opus", "flac", "webm", "aif", "aiff", "wma", "amr", "mp4"];
+const ACCEPT = ["audio/*", ...AUDIO_EXTENSIONS.map((ext) => `.${ext}`)].join(",");
 
-const isM4a = (file: File) => /\.m4a$/i.test(file.name) || /^audio\/(x-)?m4a$|^audio\/mp4$/.test(file.type);
+/** Any audio file: by its type, or by its extension when the type is missing. */
+const isAudio = (file: File) =>
+  file.type.startsWith("audio/") ||
+  AUDIO_EXTENSIONS.includes(file.name.split(".").pop()?.toLowerCase() ?? "");
 
 /** 1536000 → "1.5 MB", 20480 → "20 KB". */
 export function formatBytes(bytes: number) {
@@ -26,7 +31,7 @@ type AudioUploadProps = {
 };
 
 /**
- * Drop zone for one .m4a audio file (up to 10 MB). Click or drag a file in;
+ * Drop zone for one audio file of any common format (up to 10 MB). Click or drag a file in;
  * once uploaded it shows the file with a play/pause preview and a remove
  * button. Wrong type or too large shows an error and keeps the drop zone.
  */
@@ -38,7 +43,7 @@ export function AudioUpload({ value, onChange, label = "Greeting audio file" }: 
 
   const accept = (file: File | undefined) => {
     if (!file) return;
-    if (!isM4a(file)) return setError("Please choose an .m4a audio file.");
+    if (!isAudio(file)) return setError("Please choose an audio file, like MP3, WAV or M4A.");
     if (file.size > MAX_BYTES) return setError(`That file is ${formatBytes(file.size)}. The limit is 10 MB.`);
     setError(null);
     onChange(file);
@@ -109,7 +114,7 @@ export function AudioUpload({ value, onChange, label = "Greeting audio file" }: 
           </button>{" "}
           or drag and drop your file
         </p>
-        <p className="mt-1 text-[13px] text-[#475467]">Up to 10 MB m4a file</p>
+        <p className="mt-1 text-[13px] text-[#475467]">Up to 10 MB · MP3, WAV, M4A, OGG or any audio file</p>
         <input
           ref={inputRef}
           type="file"
@@ -141,6 +146,8 @@ function UploadedFile({
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [ready, setReady] = useState(false);
+  /** Some formats (e.g. AIFF, WMA in Chrome) upload fine but can't be previewed in every browser. */
+  const [unplayable, setUnplayable] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState<number | null>(null);
   const [position, setPosition] = useState(0);
@@ -220,11 +227,17 @@ function UploadedFile({
           Replace
         </button>
       </div>
+      {unplayable && (
+        <p className="mt-2 text-[13px] text-[#475467]">
+          Your browser can’t preview this format, but the file is uploaded.
+        </p>
+      )}
 
       {/* Always rendered so the effect above can set its source. */}
       <audio
         ref={audioRef}
         preload="metadata"
+        onError={() => setUnplayable(true)}
         onLoadedMetadata={(e) => {
           setReady(true);
           setDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : null);

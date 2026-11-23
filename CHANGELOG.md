@@ -4,6 +4,12 @@ Newest first. Each entry says what changed and where, so a new session can catch
 
 ## 2026-11-23
 
+### Numbers & hours (voicemail upload)
+- **Any audio format:** the greeting upload now accepts any audio file, not just `.m4a` (MP3, WAV, M4A, AAC, OGG, Opus, FLAC, WebM, AIFF, WMA, AMR…), up to 10 MB.
+  - The drop-zone text now reads "Up to 10 MB · MP3, WAV, M4A, OGG or any audio file".
+  - Non-audio files show "Please choose an audio file, like MP3, WAV or M4A."
+  - Formats the browser can't preview (e.g. AIFF in Chrome) show a note instead of a silent player.
+
 ### User management
 - **Remove / cancel confirmations:** the bin icon now opens a confirmation. Pending invites show "Cancel invitation?" with "Yes! Cancel"; members show "Remove agent?" with their name and "Yes! Remove". Each shows a toast after.
 - **Add members (invite):** the button opens the design's popup (`settings/invite-members-modal.tsx`).
