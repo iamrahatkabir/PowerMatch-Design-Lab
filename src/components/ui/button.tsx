@@ -1,9 +1,10 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "outline";
+type Variant = "primary" | "outline" | "danger";
 
 const variants: Record<Variant, string> = {
   primary: "bg-brand text-ink hover:bg-brand-dark",
+  danger: "bg-[#d92d20] text-white hover:bg-[#b42318]",
   outline:
     "border border-line bg-white text-ink shadow-[0_1px_2px_rgba(16,24,40,0.05)] hover:bg-canvas",
 };

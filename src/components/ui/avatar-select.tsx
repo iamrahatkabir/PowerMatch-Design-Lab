@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useState, type KeyboardEvent } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { Avatar } from "@/components/ui/data-display";
+import { menuClass, useFloatingMenu } from "@/components/ui/use-floating-menu";
 
 export type AvatarOption = { value: string; label: string; photo?: string };
 
@@ -14,62 +15,35 @@ type AvatarSelectProps = {
   label?: string;
 };
 
-/**
- * Dropdown that shows an avatar next to each person. Native <select> can't
- * render images, so this is a small listbox. The menu is `position: fixed`
- * so it isn't clipped when used inside a scrolling popup.
- */
+/** Single-choice dropdown with an avatar next to each person (native <select> can't show images). */
 export function AvatarSelect({ options, value, onChange, placeholder = "Select", label }: AvatarSelectProps) {
-  const [open, setOpen] = useState(false);
+  const { open, openMenu, close, buttonRef, listRef, style } = useFloatingMenu();
   const [active, setActive] = useState(0);
-  const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number }>();
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
   const listId = useId();
 
   const selected = options.find((o) => o.value === value);
 
-  const openMenu = () => {
-    const rect = buttonRef.current?.getBoundingClientRect();
-    if (rect) setMenuStyle({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+  const show = () => {
     setActive(Math.max(0, options.findIndex((o) => o.value === value)));
-    setOpen(true);
+    openMenu();
   };
 
   const choose = (option: AvatarOption) => {
     onChange(option.value);
-    setOpen(false);
+    close();
     buttonRef.current?.focus();
   };
-
-  // Close on outside click, or when the page/popup scrolls or resizes (the menu would drift).
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!buttonRef.current?.contains(target) && !listRef.current?.contains(target)) setOpen(false);
-    };
-    const close = () => setOpen(false);
-    document.addEventListener("pointerdown", onPointer);
-    window.addEventListener("resize", close);
-    window.addEventListener("scroll", close, true);
-    return () => {
-      document.removeEventListener("pointerdown", onPointer);
-      window.removeEventListener("resize", close);
-      window.removeEventListener("scroll", close, true);
-    };
-  }, [open]);
 
   // Keep the highlighted option in view while using the arrow keys.
   useEffect(() => {
     if (open) listRef.current?.children[active]?.scrollIntoView({ block: "nearest" });
-  }, [open, active]);
+  }, [open, active, listRef]);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (!open) {
       if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
         e.preventDefault();
-        openMenu();
+        show();
       }
       return;
     }
@@ -77,7 +51,7 @@ export function AvatarSelect({ options, value, onChange, placeholder = "Select",
       // Stop the surrounding popup from closing too.
       e.preventDefault();
       e.stopPropagation();
-      setOpen(false);
+      close();
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((i) => Math.min(options.length - 1, i + 1));
@@ -88,7 +62,7 @@ export function AvatarSelect({ options, value, onChange, placeholder = "Select",
       e.preventDefault();
       if (options[active]) choose(options[active]);
     } else if (e.key === "Tab") {
-      setOpen(false);
+      close();
     }
   };
 
@@ -103,7 +77,7 @@ export function AvatarSelect({ options, value, onChange, placeholder = "Select",
         aria-expanded={open}
         aria-controls={listId}
         aria-activedescendant={open ? `${listId}-${active}` : undefined}
-        onClick={() => (open ? setOpen(false) : openMenu())}
+        onClick={() => (open ? close() : show())}
         onKeyDown={onKeyDown}
         className="flex h-10 w-full items-center gap-2.5 rounded-lg border border-line bg-white px-3 text-left text-[15px] text-ink outline-none transition-colors focus:border-[#98a2b3]"
       >
@@ -121,14 +95,8 @@ export function AvatarSelect({ options, value, onChange, placeholder = "Select",
         />
       </button>
 
-      {open && menuStyle && (
-        <ul
-          ref={listRef}
-          id={listId}
-          role="listbox"
-          style={menuStyle}
-          className="fixed z-50 max-h-64 overflow-y-auto rounded-lg border border-line bg-white p-1 shadow-[0_12px_16px_-4px_rgba(16,24,40,0.08),0_4px_6px_-2px_rgba(16,24,40,0.03)]"
-        >
+      {open && style && (
+        <ul ref={listRef} id={listId} role="listbox" style={style} className={`${menuClass} max-h-64`}>
           {options.map((option, i) => {
             const isSelected = option.value === value;
             return (
