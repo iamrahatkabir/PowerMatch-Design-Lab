@@ -65,3 +65,16 @@ export function TableCard({ children }: { children: ReactNode }) {
 
 export const th = "h-11 px-5 text-[14.5px] font-normal text-[#475467]";
 export const tr = "h-[52px] border-t border-line whitespace-nowrap";
+
+/** Green "Active" / grey "Inactive" pill. */
+export function StatusBadge({ active }: { active: boolean }) {
+  return active ? (
+    <span className="rounded-md bg-success-soft px-1.5 py-0.5 text-[13px] font-medium text-success">
+      Active
+    </span>
+  ) : (
+    <span className="rounded-md bg-[#f2f4f7] px-1.5 py-0.5 text-[13px] font-medium text-[#475467]">
+      Inactive
+    </span>
+  );
+}

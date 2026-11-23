@@ -12,14 +12,29 @@ export function TextArea({ className = "", ...props }: TextareaHTMLAttributes<HT
   return <textarea className={`min-h-32 resize-y py-2.5 leading-relaxed ${fieldBase} ${className}`} {...props} />;
 }
 
-type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & { options: readonly string[] };
+type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  options: readonly string[];
+  /** Shown in grey while no option is chosen (value ""). */
+  placeholder?: string;
+};
 
-export function Select({ options, className = "", ...props }: SelectProps) {
+export function Select({ options, placeholder, className = "", ...props }: SelectProps) {
+  const empty = placeholder !== undefined && !props.value;
   return (
     <div className={`relative ${className}`}>
-      <select className={`h-10 cursor-pointer appearance-none pr-10 ${fieldBase}`} {...props}>
+      <select
+        className={`h-10 cursor-pointer appearance-none pr-10 ${fieldBase} ${empty ? "text-[#98a2b3]!" : ""}`}
+        {...props}
+      >
+        {placeholder !== undefined && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
         {options.map((option) => (
-          <option key={option}>{option}</option>
+          <option key={option} className="text-ink">
+            {option}
+          </option>
         ))}
       </select>
       <ChevronDown

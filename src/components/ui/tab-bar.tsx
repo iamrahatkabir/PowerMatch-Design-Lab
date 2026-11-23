@@ -55,3 +55,32 @@ export function SegmentedControl<T extends string>({ tabs, value, onChange }: Ta
     </div>
   );
 }
+
+/** Full-width grey track with a white selected pill (e.g. "All numbers / Mobile / Landline"). */
+export function PillTabs<T extends string>({ tabs, value, onChange, label }: TabBarProps<T> & { label?: string }) {
+  return (
+    <div
+      role="tablist"
+      aria-label={label}
+      className="grid gap-1 rounded-lg border border-line bg-canvas p-1"
+      style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+    >
+      {tabs.map((name) => (
+        <button
+          key={name}
+          type="button"
+          role="tab"
+          aria-selected={name === value}
+          onClick={() => onChange(name)}
+          className={`h-7 rounded-md text-[13px] transition-colors ${
+            name === value
+              ? "bg-white font-medium text-ink shadow-[0_1px_2px_rgba(16,24,40,0.06)]"
+              : "text-muted hover:text-ink"
+          }`}
+        >
+          {name}
+        </button>
+      ))}
+    </div>
+  );
+}
