@@ -2,6 +2,7 @@ import { PenLine, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AvatarStack, ChipList, TableCard, th, tr } from "@/components/ui/data-display";
 import { queues } from "@/lib/queues";
+import { photoFor } from "@/lib/users";
 
 export function QueuesTable() {
   return (
@@ -35,7 +36,7 @@ export function QueuesTable() {
                   <ChipList items={queue.channels} />
                 </td>
                 <td className="px-5">
-                  <AvatarStack names={queue.members} />
+                  <AvatarStack names={queue.members} photoFor={photoFor} />
                 </td>
                 <td className="px-5 text-right">
                   <button

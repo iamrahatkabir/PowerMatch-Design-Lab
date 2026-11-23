@@ -5,7 +5,15 @@ export type TeamUser = {
   /** null = never logged in (invitation still pending). */
   lastLogin: string | null;
   memberSince: string | null;
+  /** Profile photo under /public. Without one, avatars fall back to initials. */
+  photo?: string;
 };
+
+/** Stand-in photo cropped from the design mock. Swap in real photos per user. */
+export const PLACEHOLDER_PHOTO = "/avatars/placeholder.png";
+
+/** Users the design shows with a photo; everyone else gets initials. */
+const withPhoto = new Set(["Las sabir", "Pranto Kumar", "Patrick Andre", "Rahat Kabir", "Adam James", "Anas Ahmed", "Jhon Doe"]);
 
 const joined = (lastLogin: string | null) => (lastLogin ? "22 May, 2026" : null);
 
@@ -29,4 +37,9 @@ export const users: TeamUser[] = (
   email,
   lastLogin,
   memberSince: joined(lastLogin),
+  photo: withPhoto.has(name) ? PLACEHOLDER_PHOTO : undefined,
 }));
+
+/** Look up a person's photo by name (case-insensitive), e.g. for avatar stacks. */
+export const photoFor = (name: string) =>
+  users.find((u) => u.name.toLowerCase() === name.toLowerCase())?.photo;

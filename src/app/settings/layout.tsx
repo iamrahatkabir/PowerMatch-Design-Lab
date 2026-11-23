@@ -1,5 +1,7 @@
 import { Bell, ChevronDown, ChevronRight } from "lucide-react";
 import { Sidebar } from "@/components/app-shell/sidebar";
+import { Avatar } from "@/components/ui/data-display";
+import { PLACEHOLDER_PHOTO } from "@/lib/users";
 import { PowerMatchLogo } from "@/components/powermatch-logo";
 
 export default function SettingsLayout({ children }: LayoutProps<"/settings">) {
@@ -25,9 +27,7 @@ export default function SettingsLayout({ children }: LayoutProps<"/settings">) {
             <Bell className="size-5" strokeWidth={1.6} />
           </button>
           <button type="button" className="flex items-center gap-2.5 text-[15px]">
-            <span className="grid size-8 place-items-center rounded-full bg-[#e4e7ec] text-xs font-semibold">
-              LS
-            </span>
+            <Avatar name="Las Sabir" src={PLACEHOLDER_PHOTO} className="size-8" />
             Las Sabir
             <ChevronDown className="size-4" />
           </button>

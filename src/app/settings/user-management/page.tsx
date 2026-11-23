@@ -52,7 +52,7 @@ export default function UserManagementPage() {
               <tr key={user.id} className={tr}>
                 <td className="px-5">
                   <span className="flex items-center gap-2.5">
-                    <Avatar name={user.name} className="size-7" />
+                    <Avatar name={user.name} src={user.photo} className="size-7" />
                     {user.name}
                   </span>
                 </td>

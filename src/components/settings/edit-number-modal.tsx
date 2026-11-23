@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AvatarSelect } from "@/components/ui/avatar-select";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/data-display";
 import { Select, TextInput } from "@/components/ui/form";
@@ -44,7 +45,11 @@ export function EditNumberModal({ number, onClose, onSave }: EditNumberModalProp
   const [queue, setQueue] = useState(start.queue);
   const [agent, setAgent] = useState(start.agent);
 
-  const agents = agent && !agentOptions.includes(agent) ? [...agentOptions, agent] : agentOptions;
+  // Include the current agent even if they're not in the user list yet.
+  const agents = [
+    ...users.map((u) => ({ value: u.name, label: u.name, photo: u.photo })),
+    ...(agent && !agentOptions.includes(agent) ? [{ value: agent, label: agent }] : []),
+  ];
   const target = kind === "Queues" ? queue : agent;
 
   const save = () => {
@@ -85,7 +90,6 @@ export function EditNumberModal({ number, onClose, onSave }: EditNumberModalProp
             placeholder="Enter number label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            className="h-11"
           />
         </label>
 
@@ -94,24 +98,28 @@ export function EditNumberModal({ number, onClose, onSave }: EditNumberModalProp
           <PillTabs tabs={routeKinds} value={kind} onChange={setKind} label="Route to" />
         </div>
 
-        <label className="block">
-          <span className="mb-2 block text-[15px] font-medium">{kind === "Queues" ? "Queue" : "Agent"}</span>
-          {kind === "Queues" ? (
+        {kind === "Queues" ? (
+          <label className="block">
+            <span className="mb-2 block text-[15px] font-medium">Queue</span>
             <Select
               placeholder="Select queue"
               options={queueOptions}
               value={queue}
               onChange={(e) => setQueue(e.target.value)}
             />
-          ) : (
-            <Select
+          </label>
+        ) : (
+          <div>
+            <span className="mb-2 block text-[15px] font-medium">Agent</span>
+            <AvatarSelect
+              label="Agent"
               placeholder="Select agent"
               options={agents}
               value={agent}
-              onChange={(e) => setAgent(e.target.value)}
+              onChange={setAgent}
             />
-          )}
-        </label>
+          </div>
+        )}
       </form>
     </Modal>
   );

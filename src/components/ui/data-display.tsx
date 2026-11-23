@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 /** Small grey tag, e.g. "Phone", "Sales", "+2", "Invitation sent". */
@@ -30,8 +31,20 @@ export function initials(name: string) {
     .join("");
 }
 
-/** Initials avatar. Swap for a photo once real user images exist. */
-export function Avatar({ name, className = "" }: { name: string; className?: string }) {
+/** Round avatar: the photo when there is one, otherwise initials. */
+export function Avatar({ name, src, className = "" }: { name: string; src?: string; className?: string }) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={name}
+        title={name}
+        width={48}
+        height={48}
+        className={`size-6 shrink-0 rounded-full border border-line object-cover ${className}`}
+      />
+    );
+  }
   return (
     <span
       title={name}
@@ -42,12 +55,20 @@ export function Avatar({ name, className = "" }: { name: string; className?: str
   );
 }
 
-export function AvatarStack({ names, max = 4 }: { names: string[]; max?: number }) {
+export function AvatarStack({
+  names,
+  max = 4,
+  photoFor,
+}: {
+  names: string[];
+  max?: number;
+  photoFor?: (name: string) => string | undefined;
+}) {
   const extra = names.length - max;
   return (
     <div className="flex items-center">
       {names.slice(0, max).map((name, i) => (
-        <Avatar key={name} name={name} className={`ring-2 ring-white ${i > 0 ? "-ml-1.5" : ""}`} />
+        <Avatar key={name} name={name} src={photoFor?.(name)} className={`ring-2 ring-white ${i > 0 ? "-ml-1.5" : ""}`} />
       ))}
       {extra > 0 && (
         <span className="-ml-1.5 grid size-6 place-items-center rounded-full bg-white text-[11px] font-medium text-ink ring-2 ring-white">
