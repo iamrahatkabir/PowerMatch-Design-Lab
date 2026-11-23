@@ -55,7 +55,8 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 - `confirm-dialog.tsx`: red "Delete X?" confirmation that stacks over a popup.
 - `toast.tsx`: bottom-right success toast, auto-hides after 5s.
 - `button.tsx`: `Button` (variants `primary` yellow, `outline`, `danger` red) and `IconButton`.
-- `form.tsx`: `TextInput`, `TextArea`, `Select` (native, supports `placeholder`), and `FormPage`/`Section`/`FieldRow` for the centred form pages.
+- `form.tsx`: `TextInput`, `TextArea`, and `FormPage`/`Section`/`FieldRow` for the centred form pages.
+- `select.tsx`: `Select`, the standard single-choice dropdown in the design style (grey halo, ✓ on the chosen option). Props: `options`, `value`, `onChange(value)`, `label`, `placeholder`. Use it for every plain dropdown; there are no native `<select>`s.
 - `tab-bar.tsx`: `TabBar` (underlined page tabs), `SegmentedControl`, `PillTabs` (full-width grey track).
 - `data-display.tsx`: `Chip`, `ChipList` (+N), `Avatar` (photo or initials), `AvatarStack`, `StatusBadge`, `TableCard`, table class strings `th`/`tr`.
 - `switch.tsx`: yellow toggle.
@@ -63,6 +64,12 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
 - `use-floating-menu.ts`: shared dropdown open/close/position (fixed, flips upward when there isn't room, closes on outside click or scroll).
 - `avatar-select.tsx`: single-choice dropdown with avatars (Agent field).
 - `date-picker.tsx`: `DatePicker`, a date field with a Monday-first month calendar. The chosen day is a yellow circle and today is grey. It supports keyboard navigation and `invalid`/`errorId`. Dates are stored as `"YYYY-MM-DD"` and shown as "Apr 2, 2026" (`formatDate`, `toIso`, `fromIso`). Used for holidays.
+- `audio-upload.tsx`: `AudioUpload`, a drop zone for one `.m4a` file up to 10 MB ("Click to upload or drag and drop"). Wrong type or size shows a red error. Once uploaded, it shows a file card with name, size and length, a play/pause preview with a progress bar, Replace, and remove. The uploaded-state design is my own (none was provided).
+- `voice-recorder.tsx`: `VoiceRecorder`, which records from the microphone in the design's three states:
+  - a Record button;
+  - while recording, a stop button, a live green waveform and a timer;
+  - afterwards, play/pause with a waveform that fills green as it plays, the length, and a delete button.
+  A blocked microphone shows a red message. The value is `{ blob, duration, levels }`. To test without a mic, override `navigator.mediaDevices.getUserMedia` to return an oscillator stream.
 - `time-select.tsx`: `TimeSelect`, a time field with a dropdown in 15-minute steps (00:00–23:45). The chosen time is ticked and centred when it opens. `timeOptions(step)` builds the list. `invalid` + `errorId` show the red error state. Used in Business hours.
 - `multi-select.tsx`: checkbox dropdown with "N selected ×" (numbers, channels, members; disabled rows with a tag).
 - `icon-picker.tsx`: `IconSelect` field + dropdown over all ~2,100 Lucide icons with search. The full set is loaded lazily on first open.
@@ -84,6 +91,10 @@ Common sizes: inputs and selects are **40px tall** (`h-10`), table rows 52px, si
   - Holidays use date pickers. A holiday ending before it starts shows "End date can’t be before start date." and blocks Save; a one-day holiday is fine.
   - Save changes stays disabled while any holiday is missing its name, start date or end date. There's no message for this, only the disabled button.
   - Sample holidays use real 2026 dates: Easter Apr 2–6, Whitsun May 24–25, Sankt Hans Jun 23, Christmas Dec 24–26.
+- **Voicemail:** the greeting type options are:
+  - "Typed text, read aloud": shows the text box.
+  - "An uploaded audio file": shows `AudioUpload`. Save stays disabled until a file is uploaded. Files only count as a change while this option is chosen. Nothing is actually uploaded; the file stays in the browser.
+  - "Record a greeting now": shows `VoiceRecorder`. Save stays disabled until a recording exists.
 - **Phone numbers:**
   - Bought numbers are added as inactive "New number", routed to "--".
   - The Edit popup's Route to has Queues / Agents tabs.

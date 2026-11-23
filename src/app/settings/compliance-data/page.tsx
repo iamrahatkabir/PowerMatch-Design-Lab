@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FieldRow, FormPage, Section, Select } from "@/components/ui/form";
+import { FieldRow, FormPage, Section } from "@/components/ui/form";
+import { Select } from "@/components/ui/select";
 import { Toast } from "@/components/ui/toast";
 import { useUnsavedChanges } from "@/components/ui/use-unsaved-changes";
 
@@ -29,10 +30,10 @@ export default function ComplianceDataPage() {
   const field = (key: keyof typeof settings, label: string, options: readonly string[]) => (
     <FieldRow label={label}>
       <Select
-        aria-label={label}
+        label={label}
         options={options}
         value={settings[key]}
-        onChange={(e) => setSettings((s) => ({ ...s, [key]: e.target.value }))}
+        onChange={(value) => setSettings((s) => ({ ...s, [key]: value }))}
       />
     </FieldRow>
   );

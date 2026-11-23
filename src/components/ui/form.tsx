@@ -1,5 +1,4 @@
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
-import { ChevronDown } from "lucide-react";
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 
 const fieldBase =
   "w-full rounded-lg border border-line bg-white px-3.5 text-[15px] text-ink outline-none transition-colors placeholder:text-[#98a2b3] focus:border-[#98a2b3] disabled:bg-canvas disabled:text-[#c4c9d2]";
@@ -10,39 +9,6 @@ export function TextInput({ className = "", ...props }: InputHTMLAttributes<HTML
 
 export function TextArea({ className = "", ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return <textarea className={`min-h-32 resize-y py-2.5 leading-relaxed ${fieldBase} ${className}`} {...props} />;
-}
-
-type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
-  options: readonly string[];
-  /** Shown in grey while no option is chosen (value ""). */
-  placeholder?: string;
-};
-
-export function Select({ options, placeholder, className = "", ...props }: SelectProps) {
-  const empty = placeholder !== undefined && !props.value;
-  return (
-    <div className={`relative ${className}`}>
-      <select
-        className={`h-10 cursor-pointer appearance-none pr-10 ${fieldBase} ${empty ? "text-[#98a2b3]!" : ""}`}
-        {...props}
-      >
-        {placeholder !== undefined && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((option) => (
-          <option key={option} className="text-ink">
-            {option}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        className="pointer-events-none absolute top-1/2 right-3 size-[18px] -translate-y-1/2 text-ink"
-        strokeWidth={1.8}
-      />
-    </div>
-  );
 }
 
 /** Centered column used by the form-style settings pages. */

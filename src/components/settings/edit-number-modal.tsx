@@ -4,7 +4,8 @@ import { useState } from "react";
 import { AvatarSelect } from "@/components/ui/avatar-select";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/data-display";
-import { Select, TextInput } from "@/components/ui/form";
+import { TextInput } from "@/components/ui/form";
+import { Select } from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import { PillTabs } from "@/components/ui/tab-bar";
 import { useUnsavedChanges } from "@/components/ui/use-unsaved-changes";
@@ -105,15 +106,10 @@ export function EditNumberModal({ number, onClose, onSave }: EditNumberModalProp
         </div>
 
         {kind === "Queues" ? (
-          <label className="block">
+          <div>
             <span className="mb-2 block text-[15px] font-medium">Queue</span>
-            <Select
-              placeholder="Select queue"
-              options={queueOptions}
-              value={queue}
-              onChange={(e) => setQueue(e.target.value)}
-            />
-          </label>
+            <Select label="Queue" placeholder="Select queue" options={queueOptions} value={queue} onChange={setQueue} />
+          </div>
         ) : (
           <div>
             <span className="mb-2 block text-[15px] font-medium">Agent</span>

@@ -5,6 +5,21 @@ Newest first. Each entry says what changed and where, so a new session can catch
 ## 2026-11-23
 
 ### Numbers & hours
+- **Voicemail voice recording:** "Record a greeting now" uses the new `ui/voice-recorder.tsx`, which follows the three designs:
+  1. A **Record** button.
+  2. While recording: a stop button, a live green waveform and a timer.
+  3. Afterwards: play/pause, a waveform that turns green as it plays, the length, and a bin to delete.
+
+  It uses the real microphone. A blocked microphone shows an error. Save stays disabled until there's a recording.
+- **Voicemail audio upload:** choosing "An uploaded audio file" shows the design's drop zone (`ui/audio-upload.tsx`). Click or drag in an `.m4a` file up to 10 MB; anything else shows a red error.
+  - The uploaded state (my own design) is a file card with name, size and length, a play/pause preview with progress, Replace, and remove.
+  - Save stays disabled until a file is uploaded.
+- **Voicemail greeting options:** the greeting dropdown now offers "Typed text, read aloud", "An uploaded audio file" and "Record a greeting now". Only the first shows the text box. The other two show nothing extra until their designs arrive.
+
+### Everywhere (dropdowns)
+- **Custom dropdowns replace browser dropdowns.** The new `ui/select.tsx` (`Select`) matches the design: a grey halo, a ✓ on the chosen option, keyboard support, and Esc closing only the dropdown. It's used for Voicemail (greeting type, max length), Compliance & data, and the Queue field in Edit number. The old native `Select` was removed from `ui/form.tsx`, and `onChange` now receives the value directly.
+
+### Numbers & hours (earlier today)
 - **Incomplete holidays block Save:** after **Add holiday**, Save changes stays disabled until the new holiday has a name, a start date and an end date. Clearing a name disables it again.
 - **Holiday date pickers:** holiday start and end dates use `DatePicker` (`ui/date-picker.tsx`), matching the design.
   - It's a month calendar with arrows, Monday first. The selected day is a yellow circle and today is grey.
